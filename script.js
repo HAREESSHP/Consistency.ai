@@ -50,8 +50,8 @@ function openCalendly() {
  */
 function openWhatsApp() {
     // Replace with your actual WhatsApp number (include country code)
-    const phoneNumber = '919346315298'; // Example: +91 XXXXX XXXXX
-    const message = encodeURIComponent('Hi! I want to book a free clarity meet with Consistency AI.');
+    const phoneNumber = '919346315298'; // Consistency AI WhatsApp
+    const message = encodeURIComponent('Hi! I want to get clarity on my learning goals with Consistency AI. Can you help me?');
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank');
 }
