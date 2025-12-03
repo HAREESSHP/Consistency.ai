@@ -98,6 +98,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update active nav link on scroll
     window.addEventListener('scroll', updateActiveNavLink);
+
+    // ============================================
+    // CAROUSEL INITIALIZATION
+    // ============================================
+    const carouselTrack = document.querySelector('.carousel-track');
+    const carouselContainer = document.querySelector('.carousel-container');
+    
+    if (carouselTrack && carouselContainer) {
+        // Set initial active indicator
+        updateCarouselPosition();
+
+        // Start auto-scroll
+        startAutoScroll();
+
+        // Pause auto-scroll on hover
+        carouselContainer.addEventListener('mouseenter', stopAutoScroll);
+        carouselContainer.addEventListener('mouseleave', startAutoScroll);
+
+        // For mobile - pause on touch
+        carouselContainer.addEventListener('touchstart', stopAutoScroll);
+        carouselContainer.addEventListener('touchend', startAutoScroll);
+    }
 });
 
 /**
@@ -178,4 +200,102 @@ function animateCounter(element, target, duration = 2000) {
             element.textContent = Math.floor(current);
         }
     }, 16);
+}
+
+// ============================================
+// CAROUSEL FUNCTIONALITY
+// ============================================
+
+let currentSlide = 0;
+let autoScrollInterval = null;
+const TOTAL_ORIGINAL_SLIDES = 6; // Number of original cards
+
+/**
+ * Scroll carousel to the specified direction
+ * @param {number} direction - Direction to scroll (-1 for previous, 1 for next)
+ */
+function scrollCarousel(direction) {
+    const carouselTrack = document.querySelector('.carousel-track');
+    const indicators = document.querySelectorAll('.indicator');
+    const totalSlides = document.querySelectorAll('.student-card').length;
+    
+    currentSlide += direction;
+
+    // Update position immediately
+    updateCarouselPosition();
+
+    // Check if we need to loop back to start
+    if (currentSlide >= TOTAL_ORIGINAL_SLIDES) {
+        setTimeout(() => {
+            carouselTrack.style.transition = 'none';
+            currentSlide = 0;
+            updateCarouselPosition();
+            // Re-enable transition after a brief delay
+            setTimeout(() => {
+                carouselTrack.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }, 50);
+        }, 600);
+    } else if (currentSlide < 0) {
+        setTimeout(() => {
+            carouselTrack.style.transition = 'none';
+            currentSlide = TOTAL_ORIGINAL_SLIDES - 1;
+            updateCarouselPosition();
+            // Re-enable transition after a brief delay
+            setTimeout(() => {
+                carouselTrack.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }, 50);
+        }, 600);
+    }
+}
+
+/**
+ * Go to a specific slide
+ * @param {number} index - The slide index to navigate to
+ */
+function goToSlide(index) {
+    const carouselTrack = document.querySelector('.carousel-track');
+    carouselTrack.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    currentSlide = index;
+    updateCarouselPosition();
+    // Reset auto-scroll when manually selecting
+    clearInterval(autoScrollInterval);
+    startAutoScroll();
+}
+
+/**
+ * Update carousel position and indicators
+ */
+function updateCarouselPosition() {
+    const carouselTrack = document.querySelector('.carousel-track');
+    const indicators = document.querySelectorAll('.indicator');
+    
+    if (carouselTrack) {
+        const offset = currentSlide * 100;
+        carouselTrack.style.transform = `translateX(-${offset}%)`;
+    }
+
+    // Update indicators - only for original slides
+    indicators.forEach((indicator, index) => {
+        if (index === (currentSlide % TOTAL_ORIGINAL_SLIDES)) {
+            indicator.classList.add('active');
+        } else {
+            indicator.classList.remove('active');
+        }
+    });
+}
+
+/**
+ * Start auto-scroll carousel
+ */
+function startAutoScroll() {
+    autoScrollInterval = setInterval(() => {
+        scrollCarousel(1);
+    }, 5000); // 5 seconds
+}
+
+/**
+ * Stop auto-scroll carousel
+ */
+function stopAutoScroll() {
+    clearInterval(autoScrollInterval);
 }
